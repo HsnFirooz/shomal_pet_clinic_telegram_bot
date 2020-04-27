@@ -1,0 +1,12 @@
+TODO list:
+
+Admin Panel
+[] search by patient ID
+[] list of patient ID
+[] add patient ID
+[] message case guardian username
+
+User Panel
+[] add case guardian username to patient doc
+[] show reminding timer
+[] show clinic info
