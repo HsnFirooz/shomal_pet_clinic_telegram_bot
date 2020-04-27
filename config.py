@@ -1,3 +1,5 @@
-TOEKN = '399085384:AAG9snEXFzMwwgt6E2ZJiHrucBjrWkfFIeE'
+#bot token for @BotFather
+BOT_TOEKN = '399085384:AAG9snEXFzMwwgt6E2ZJiHrucBjrWkfFIeE'
 
-admin_username = ['shaahinrmz', 'hsnfirooz']
+#usernames who have access to admin commands
+ADMIN_USERNAMES = ['shaahinrmz', 'hsnfirooz']
