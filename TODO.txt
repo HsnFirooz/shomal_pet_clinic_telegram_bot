@@ -3,13 +3,18 @@ TODO list:
 
 Admin Panel
 [] search by patient ID
-[] list of patient ID
-[] add patient ID
-[] message case guardian (chat_id)
+[x] list of patient ID
+[x] add patient ID
 [] upcoming patients
-[] deadline missed patients
+[] deadline missed patients & close deadline
 [] multiple case
 [] multiple visit
+[] Broadcast
+[] Narocast
+[] Che Kari anjam shod
+[] Default timer for every job
+[] map(service, timer)
+[] admin Panel -> defualt time, time
 
 User Panel
 [] add case guardian username to patient doc
@@ -17,3 +22,4 @@ User Panel
 [] show clinic info
 [] multiple case
 [] multiple visit
+[]
