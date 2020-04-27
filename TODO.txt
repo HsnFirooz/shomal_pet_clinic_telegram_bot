@@ -1,12 +1,19 @@
 TODO list:
+[x] authentication
 
 Admin Panel
 [] search by patient ID
 [] list of patient ID
 [] add patient ID
-[] message case guardian username
+[] message case guardian (chat_id)
+[] upcoming patients
+[] deadline missed patients
+[] multiple case
+[] multiple visit
 
 User Panel
 [] add case guardian username to patient doc
 [] show reminding timer
 [] show clinic info
+[] multiple case
+[] multiple visit
