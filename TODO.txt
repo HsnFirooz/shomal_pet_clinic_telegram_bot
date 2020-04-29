@@ -22,4 +22,7 @@ User Panel
 [] show clinic info
 [] multiple case
 [] multiple visit
-[]
+[] reserve a time (using google calender)
+[] calendar
+[] multiple gaurdian
+[] notify admin when user logins
