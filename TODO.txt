@@ -11,10 +11,11 @@ Admin Panel
 [] Broadcast
 [x] Narocast
 [x] Che Kari anjam shod
-[] Default timer for every job
+[x] Default timer for every job
 [] map(service, timer)
 [] can't got back to admin when stated /user_start
 [] admin Panel -> defualt time, time
+[] regex case id i.e 2020042951
 
 User Panel
 [x] add case guardian username to patient doc
@@ -28,3 +29,4 @@ User Panel
 [x] notify admin when user logins
     [] register new admin
     [x] register admin's chat_id
+[] reminder time UTC problem

@@ -3,10 +3,11 @@ import config
 import redis
 import time
 import json
+import datetime
 
 from telegram import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
-                          ConversationHandler, CallbackQueryHandler)
+                          ConversationHandler, CallbackQueryHandler, CallbackContext)
 
 import logging
 
@@ -155,8 +156,9 @@ def create_new_case(update, context):
     return admin_main_menu(update)
 
 def set_reminder_timer(update, context):
+    #TODO: Fix UCT time
     latest_visit = context.user_data['date']
-    reminder = latest_visit + float(update.message.text)
+    reminder = update.message.text
     context.user_data['reminder'].append(reminder)
     update.message.reply_text(f'OK, She has to come back in {update.message.text} minutes')
 
@@ -230,6 +232,9 @@ def user_get_case_id(update, context):
         if tg_guardian not in patient['guardian']:
             patient['guardian'].append(tg_guardian.to_dict())
             redis_db.set(case_id, json.dumps(patient))
+            set_user_reminder(update, context,
+                              patient['case']['medicine'], 
+                              patient['case']['reminder'])
             update.message.reply_text(f'Done! You are now {pet_name} guardian')
             _notify_admins(context, tg_guardian, case_id)
         else:
@@ -238,6 +243,21 @@ def user_get_case_id(update, context):
         update.message.reply_text('Are you sure about the case id? I didn\'t find anything!')
 
     return user_main_menu(update)
+
+def send_reminder_message(context: CallbackContext):
+    # Remove from medicine and reminder dict
+    chat_id = medicine = context.job.context[0]
+    medicine = context.job.context[1]
+    context.bot.send_message(chat_id=chat_id,
+                             text=f'It\'s time for {medicine} for your pet')
+                             
+def set_user_reminder(update, context, medicine, reminder):
+    chat_id = update.message.chat_id
+    for m, r in zip(medicine, reminder):
+        context.job_queue.run_once(send_reminder_message,
+                                    when=int(r), 
+                                    context=[chat_id, m])  
+        print('setting job')
 
 def _notify_admins(context, guardian, case_id):
     admins = context.bot_data
@@ -312,11 +332,7 @@ def main():
 
     dp.add_handler(admin_handler)
     dp.add_handler(user_handler)
-    updater.start_polling()
 
-    updater.idle()
-
-    dp.add_handler(admin_handler)
     updater.start_polling()
 
     updater.idle()
