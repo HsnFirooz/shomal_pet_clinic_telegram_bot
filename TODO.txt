@@ -7,7 +7,6 @@ Admin Panel
 [x] add patient ID
 [] upcoming patients
 [] deadline missed patients & close deadline
-[] multiple case
 [] multiple visit
 [] Broadcast
 [] Narocast
@@ -17,12 +16,14 @@ Admin Panel
 [] admin Panel -> defualt time, time
 
 User Panel
-[] add case guardian username to patient doc
+[x] add case guardian username to patient doc
 [] show reminding timer
 [] show clinic info
 [] multiple case
 [] multiple visit
 [] reserve a time (using google calender)
 [] calendar
-[] multiple gaurdian
-[] notify admin when user logins
+[x] multiple gaurdian
+[x] notify admin when user logins
+    [] register new admin
+    [x] register admin's chat_id

@@ -42,6 +42,7 @@ def admin_start(update, context):
     usr = update.effective_user
     username = usr['username']
     if is_admin(username):
+        context.bot_data[username] = usr['id']
         update.message.reply_text(f'Welcome Back {username}')
         logger.info('%s logged in as the admin user', username)
         return admin_main_menu(update)
@@ -69,8 +70,7 @@ def admin_update_case(update, context):
     return UPDATE_CASE
 
 def admin_all_case_info(update, context):
-    print(patients)
-    return admin_main_menu(update)
+    pass
 
 def is_admin(user):
     return user in ADMIN_USERNAMES
@@ -157,16 +157,24 @@ def user_get_case_id(update, context):
     patient = redis_db.get(case_id)
     if patient is not None:
         patient = json.loads(patient)
+        pet_name = patient['case']['pet_name']
         tg_guardian = update.effective_user
         if tg_guardian not in patient['guardian']:
             patient['guardian'].append(tg_guardian.to_dict())
             redis_db.set(case_id, json.dumps(patient))
+            update.message.reply_text(f'Done! You are now {pet_name} guardian')
+            _notify_admins(context, tg_guardian, case_id)
         else:
-            update.reply_text('You are already a registered guardian for this pet')
+            update.reply_text('You are already a registered guardian for this {pet_name}')
     else:
         update.message.reply_text('Are you sure about the case id? I didn\'t find anything!')
 
     return user_main_menu(update)
+
+def _notify_admins(context, guardian, case_id):
+    admins = context.bot_data
+    for username in admins:
+        context.bot.send_message(chat_id = admins[username], text=(f'{guardian} registered! for {case_id} guardian'))
 
 def main():
     updater = Updater(BOT_TOKEN, use_context=True)
