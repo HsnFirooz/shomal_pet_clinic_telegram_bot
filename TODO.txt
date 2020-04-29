@@ -8,7 +8,7 @@ Admin Panel
 [] upcoming patients
 [] deadline missed patients & close deadline
 [] multiple visit
-[] Broadcast
+[x] Broadcast
 [x] Narocast
 [x] Che Kari anjam shod
 [x] Default timer for every job

@@ -32,6 +32,7 @@ SET_PET_NAME = 108
 CASE_MEDICINE = 110
 NARROWCAST = 111
 NARROWCAST_TEXT = 112
+BROADCAST = 113
 
 redis_db = redis.Redis(host='127.0.0.1', port='6379', db=0)
 
@@ -174,6 +175,22 @@ def narrowcast_case_id(update, context):
     update.message.reply_text("Please Enter the case ID")
     return NARROWCAST_TEXT
 
+def broadcast_get_text(update, context):
+    update.message.reply_text('What do you want to say to guardians?')
+    return BROADCAST
+
+def broadcast_message(update, context):
+    for key in redis_db.keys():
+        patient = json.loads(redis_db.get(key))
+        guardians = patient['guardian']
+        if guardians:
+            context.user_data['guardians_chat_id'] = []
+            for guardian in guardians:
+                g_id = guardian['id']
+                context.user_data['guardians_chat_id'].append(g_id)
+            send_message(update, context)
+        else:
+            continue
 
 def narrowcast_text(update, context):
     case_id = update.message.text
@@ -250,7 +267,7 @@ def send_reminder_message(context: CallbackContext):
     medicine = context.job.context[1]
     context.bot.send_message(chat_id=chat_id,
                              text=f'It\'s time for {medicine} for your pet')
-                             
+
 def set_user_reminder(update, context, medicine, reminder):
     chat_id = update.message.chat_id
     for m, r in zip(medicine, reminder):
@@ -282,7 +299,9 @@ def main():
                             MessageHandler(Filters.regex('^all case info$'),
                             admin_all_case_info),
                             MessageHandler(Filters.regex('^narrowcast$'),
-                            narrowcast_case_id)
+                            narrowcast_case_id),
+                            MessageHandler(Filters.regex('^broadcast$'),
+                            broadcast_get_text)
             ],
             SET_CASE_ID:[MessageHandler(Filters.text,
                                          get_case_id)
@@ -308,6 +327,10 @@ def main():
 
             NARROWCAST:[MessageHandler(Filters.text, 
                                         send_message)
+            ],
+
+            BROADCAST:[MessageHandler(Filters.text, 
+                                        broadcast_message)
             ]
         },
 
