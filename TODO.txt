@@ -9,10 +9,11 @@ Admin Panel
 [] deadline missed patients & close deadline
 [] multiple visit
 [] Broadcast
-[] Narocast
+[x] Narocast
 [x] Che Kari anjam shod
 [] Default timer for every job
 [] map(service, timer)
+[] can't got back to admin when stated /user_start
 [] admin Panel -> defualt time, time
 
 User Panel

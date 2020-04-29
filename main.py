@@ -29,6 +29,8 @@ GET_VISITED_DATE = 106
 ADMIN_TIMER = 107
 SET_PET_NAME = 108
 CASE_MEDICINE = 110
+NARROWCAST = 111
+NARROWCAST_TEXT = 112
 
 redis_db = redis.Redis(host='127.0.0.1', port='6379', db=0)
 
@@ -133,7 +135,7 @@ def create_new_case(update, context):
     latest_visit = context.user_data['date']
     reminders = context.user_data['reminder']
     medicines = context.user_data['medicine']
-
+    #TODO: append visit and medicins together for better logging
     patient = {
                 'guardian': list(),
                 'case': {
@@ -150,6 +152,8 @@ def create_new_case(update, context):
     redis_db.set(case_id, json.dumps(patient))
     update.message.reply_text(f'I created a profile for {pet_name}, here is the details {patient}')
 
+    return admin_main_menu(update)
+
 def set_reminder_timer(update, context):
     latest_visit = context.user_data['date']
     reminder = latest_visit + float(update.message.text)
@@ -163,6 +167,42 @@ def set_reminder_timer(update, context):
                                 reply_markup=ReplyKeyboardMarkup(medicine_keyboard, one_time_keyboard=True))
 
     return CASE_MEDICINE
+
+def narrowcast_case_id(update, context):
+    update.message.reply_text("Please Enter the case ID")
+    return NARROWCAST_TEXT
+
+
+def narrowcast_text(update, context):
+    case_id = update.message.text
+    patient = redis_db.get(case_id)
+    if patient is not None:
+        patient = json.loads(patient)
+        guardians = patient['guardian']
+        if guardians:
+            context.user_data['guardians_chat_id'] = []
+            for guardian in guardians:
+                g_id = guardian['id']
+                context.user_data['guardians_chat_id'].append(g_id)
+            update.message.reply_text(f'What do you want to say to {case_id} guardians?')
+            return NARROWCAST
+        else:
+            update.message.reply_text(f'There is no registered guardian for {case_id}')
+            return admin_main_menu(update)
+    else:
+        update.message.reply_text('Are you sure about the case id? I didn\'t find anything!')
+        return admin_main_menu(update)
+
+def send_message(update, context):
+    #TODO: counter
+    #TODO: BLOCK exeption
+    text = update.message.text
+    for chat_id in context.user_data['guardians_chat_id']:
+        context.bot.send_message(chat_id=chat_id, text=text)
+    update.message.reply_text(f'DONE!')
+    context.user_data.clear()
+    return admin_main_menu(update)
+
 
 def user_start(update, context):
     usr = update.effective_user
@@ -205,6 +245,7 @@ def _notify_admins(context, guardian, case_id):
         context.bot.send_message(chat_id = admins[username], text=(f'{guardian} registered! for {case_id} guardian'))
 
 def main():
+    #TODO:  
     updater = Updater(BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
     
@@ -219,7 +260,9 @@ def main():
                             MessageHandler(Filters.regex('^del case$'),
                             admin_del_case), 
                             MessageHandler(Filters.regex('^all case info$'),
-                            admin_all_case_info)
+                            admin_all_case_info),
+                            MessageHandler(Filters.regex('^narrowcast$'),
+                            narrowcast_case_id)
             ],
             SET_CASE_ID:[MessageHandler(Filters.text,
                                          get_case_id)
@@ -237,6 +280,14 @@ def main():
             ],
             ADMIN_TIMER:[MessageHandler(Filters.text,
                                          set_reminder_timer)
+            ],
+
+            NARROWCAST_TEXT:[MessageHandler(Filters.text, 
+                                        narrowcast_text)
+            ],
+
+            NARROWCAST:[MessageHandler(Filters.text, 
+                                        send_message)
             ]
         },
 
