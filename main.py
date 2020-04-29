@@ -1,7 +1,7 @@
 import config
 
 import redis
-import datetime
+import time
 import json
 
 from telegram import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup)
@@ -28,6 +28,7 @@ ALL_CASE_INFO = 105
 GET_VISITED_DATE = 106
 ADMIN_TIMER = 107
 SET_PET_NAME = 108
+CASE_MEDICINE = 110
 
 redis_db = redis.Redis(host='127.0.0.1', port='6379', db=0)
 
@@ -105,24 +106,39 @@ def unknown_command(update, context):
 def update_case_date(update, context): 
     visit_date = update.message.text
     if (visit_date=='Today'): #PICKEL SERIALIZE
-        visit_date = datetime.datetime.now()
+        visit_date = time.time()
     else: #Print a nice calander on telegram inline keyboard
         alaki = 2
     context.user_data['date'] = visit_date
-    update.message.reply_text(f'Set Timer:',
-                                reply_markup=ReplyKeyboardMarkup([['30']], one_time_keyboard=True))
+
+    context.user_data['medicine'] = []
+    context.user_data['reminder'] = []
+    medicine_keyboard = [['A', 'B', 'C'],
+                         ['D', 'E', 'F']]
+    update.message.reply_text(f'What did you do for her?',
+                                reply_markup=ReplyKeyboardMarkup(medicine_keyboard, one_time_keyboard=True))
+    return CASE_MEDICINE
+
+def add_case_medicine(update, context):
+    medicine = update.message.text
+    context.user_data['medicine'].append(medicine)
+
+    update.message.reply_text(f'OK, when she should come back for her {medicine}')
+
     return ADMIN_TIMER
 
-def set_reminder_timer(update, context):
-    next_alarm = update.message.text
+def create_new_case(update, context):
     pet_name = context.user_data['pet_name']
     case_id = context.user_data['case_id']
     latest_visit = context.user_data['date']
+    reminders = context.user_data['reminder']
+    medicines = context.user_data['medicine']
+
     patient = {
                 'guardian': list(),
                 'case': {
-                    'next_alarm': next_alarm,
-                    'medicine': list(),
+                    'reminder': reminders,
+                    'medicine': medicines,
                     'latest_visit': latest_visit,
                     'visit_history': [latest_visit],
                     'pet_name': pet_name
@@ -134,7 +150,19 @@ def set_reminder_timer(update, context):
     redis_db.set(case_id, json.dumps(patient))
     update.message.reply_text(f'I created a profile for {pet_name}, here is the details {patient}')
 
-    return admin_main_menu(update)
+def set_reminder_timer(update, context):
+    latest_visit = context.user_data['date']
+    reminder = latest_visit + float(update.message.text)
+    context.user_data['reminder'].append(reminder)
+    update.message.reply_text(f'OK, She has to come back in {update.message.text} minutes')
+
+    medicine_keyboard = [['A', 'B', 'C'],
+                         ['D', 'E', 'F'],
+                         ['/done']]
+    update.message.reply_text(f'What did you do for her?',
+                                reply_markup=ReplyKeyboardMarkup(medicine_keyboard, one_time_keyboard=True))
+
+    return CASE_MEDICINE
 
 def user_start(update, context):
     usr = update.effective_user
@@ -198,6 +226,11 @@ def main():
             ],
             SET_PET_NAME:[MessageHandler(Filters.text,
                                                 set_pet_name)
+            ],
+            CASE_MEDICINE:[CommandHandler('done',
+                                            create_new_case),
+                            MessageHandler(Filters.text,
+                                            add_case_medicine)
             ],
             GET_VISITED_DATE:[MessageHandler(Filters.text,
                                                 update_case_date)

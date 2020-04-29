@@ -10,7 +10,7 @@ Admin Panel
 [] multiple visit
 [] Broadcast
 [] Narocast
-[] Che Kari anjam shod
+[x] Che Kari anjam shod
 [] Default timer for every job
 [] map(service, timer)
 [] admin Panel -> defualt time, time
