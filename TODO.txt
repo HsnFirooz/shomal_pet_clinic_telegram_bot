@@ -16,11 +16,13 @@ Admin Panel
 [] can't got back to admin when stated /user_start
 [] admin Panel -> defualt time, time
 [] regex case id i.e 2020042951
+[] add pet birthday and notice
 
 User Panel
 [x] add case guardian username to patient doc
 [] show reminding timer
 [] show clinic info
+[] edit pet name
 [] multiple case
 [] multiple visit
 [] reserve a time (using google calender)
