@@ -59,7 +59,8 @@ def admin_start(update, context):
 def admin_main_menu(update):
     admin_reply_keyboard = [['new case', 'update case'],
                             ['del case', 'all case info'],
-                            ['broadcast', 'narrowcast']]
+                            ['broadcast', 'narrowcast'],
+                            ['upcoming patient']]
     admin_markup = ReplyKeyboardMarkup(admin_reply_keyboard, one_time_keyboard=True)
     update.message.reply_text(f'What do you want to do?', reply_markup=admin_markup)
     return ADMIN_MAIN_MANU
@@ -134,18 +135,24 @@ def add_case_medicine(update, context):
 def create_new_case(update, context):
     pet_name = context.user_data['pet_name']
     case_id = context.user_data['case_id']
-    latest_visit = context.user_data['date']
+    date = context.user_data['date']
     reminders = context.user_data['reminder']
     medicines = context.user_data['medicine']
     #TODO: append visit and medicins together for better logging
+
+    current_visit = {
+                    'date': date,
+                    'reminder': reminders,
+                    'medicine': medicines
+    }
+
     patient = {
                 'guardian': list(),
                 'case': {
-                    'reminder': reminders,
-                    'medicine': medicines,
-                    'latest_visit': latest_visit,
-                    'visit_history': [latest_visit],
-                    'pet_name': pet_name
+                    'pet_name': pet_name,
+                    'bday': None,
+                    'latest_visit': current_visit,
+                    'visit_history': [current_visit]
                 }
     }
 
@@ -250,8 +257,8 @@ def user_get_case_id(update, context):
             patient['guardian'].append(tg_guardian.to_dict())
             redis_db.set(case_id, json.dumps(patient))
             set_user_reminder(update, context,
-                              patient['case']['medicine'], 
-                              patient['case']['reminder'])
+                              patient['case']['latest_visit']['medicine'], 
+                              patient['case']['latest_visit']['reminder'])
             update.message.reply_text(f'Done! You are now {pet_name} guardian')
             _notify_admins(context, tg_guardian, case_id)
         else:

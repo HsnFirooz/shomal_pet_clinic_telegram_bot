@@ -2,6 +2,8 @@ TODO list:
 [x] authentication
 
 Admin Panel
+[] better reply_message
+[] customer read the admin message?
 [] search by patient ID
 [x] list of patient ID
 [x] add patient ID
@@ -9,6 +11,7 @@ Admin Panel
 [] deadline missed patients & close deadline
 [] multiple visit
 [x] Broadcast
+    [] fix uniqe guardian in different cases bug
 [x] Narocast
 [x] Che Kari anjam shod
 [x] Default timer for every job
@@ -25,7 +28,7 @@ User Panel
 [] edit pet name
 [] multiple case
 [] multiple visit
-[] reserve a time (using google calender)
+    - not important [] reserve a time (using google calender)
 [] calendar
 [x] multiple gaurdian
 [x] notify admin when user logins
